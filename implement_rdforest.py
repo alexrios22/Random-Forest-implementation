@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier
 
-class RandomForestClassifier:
+class RandomForestClassifierCustom:
     def __init__(self, n_estimators=10, max_depth=10, max_features=10, 
                  random_state=75):
         self.n_estimators = n_estimators #number of trees in the forest
