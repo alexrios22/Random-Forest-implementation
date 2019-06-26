@@ -6,8 +6,9 @@ Created on Mon Jan 14 15:45:40 2019
 """
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.base import BaseEstimator
 
-class RandomForestClassifierCustom:
+class RandomForestClassifierCustom(BaseEstimator):
     def __init__(self, n_estimators=10, max_depth=10, max_features=10, 
                  random_state=75):
         self.n_estimators = n_estimators #number of trees in the forest
