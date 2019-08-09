@@ -28,8 +28,9 @@ class RandomForestClassifierCustom(BaseEstimator):
         seed used by the random number generator
         
     """
-    def __init__(self, n_estimators=100, max_depth=10, max_features=10, 
-                 random_state=75):
+    def __init__(self, criterion='gini', n_estimators=100, max_depth=None,
+                 max_features='auto', random_state=None):
+        self.criterion = criterion
         self.n_estimators = n_estimators 
         self.max_depth = max_depth 
         self.max_features = max_features 
@@ -53,8 +54,11 @@ class RandomForestClassifierCustom(BaseEstimator):
         -------
         self : object
         """
+        n_features = X.shape[1]
+        if self.max_features=='auto':
+            self.max_features = int(np.sqrt(n_features))
         for k in range(self.n_estimators):
-            ids=np.random.choice([k for k in range(X.shape[1])],
+            ids=np.random.choice([k for k in range(n_features)],
                            self.max_features,replace=False) #random sample of features without replacement
             self.feat_ids_by_tree.append(ids) #for this tree, the ids of the features that we randomly select
             indices=np.random.choice([k for k in range(len(X))],len(X)
