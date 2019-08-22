@@ -152,7 +152,7 @@ class RandomForestClassifierCustom(BaseEstimator):
             indices_p = list(range(len(oob_sample_X)))
             random.shuffle(indices_p)
             oob_sample_X_p = oob_sample_X.copy() 
-            oob_sample_X_p[:,i] = oob_sample_X[indices_p,i]
+            oob_sample_X_p[:,i] = oob_sample_X[indices_p,   i]
             oob_error_p = self.compute_oob_error(oob_sample_X_p, oob_sample_y)
             all_importances[i]=oob_error_p - oob_error
         
