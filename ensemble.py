@@ -36,12 +36,8 @@ class RandomForestClassifierCustom(BaseEstimator):
         self.n_estimators = n_estimators 
         self.max_depth = max_depth 
         self.max_features = max_features 
-        self.random_state = random_state
-        self.trees = [] #we store the trees in a list
-        self.feat_ids_by_tree = [] #for each tree, we store indices of features
-        self.n_jobs = n_jobs
-        self.n_features = None
-        self.oob_samples = []
+        self.random_state = random_state               
+        self.n_jobs = n_jobs       
         
     
     def fit(self, X, y):
@@ -59,6 +55,12 @@ class RandomForestClassifierCustom(BaseEstimator):
         -------
         self : object
         """
+        #we store the trees in a list
+        self.trees = [] 
+        #for each tree, we store indices of features
+        self.feature_ids = []
+        #we store oob samples for each tree
+        self.oob_samples = []
         self.n_features = X.shape[1]
         if self.max_features=='auto':
             self.max_features = int(np.sqrt(self.n_features))
@@ -68,7 +70,7 @@ class RandomForestClassifierCustom(BaseEstimator):
             ids=np.random.choice([k for k in range(self.n_features)],
                            self.max_features,replace=False) 
             #for this tree, the ids of the features that we randomly select
-            self.feat_ids_by_tree.append(ids) 
+            self.feature_ids.append(ids) 
             #random sample with replacement to create a bootstrap sample
             indices=np.random.choice([k for k in range(len(X))],len(X)
                 ,replace=True) 
@@ -107,7 +109,7 @@ class RandomForestClassifierCustom(BaseEstimator):
         probas=[]
         #for each tree, we predict the probabilities vector
         for k in range(len(self.trees)): 
-            ids=self.feat_ids_by_tree[k]
+            ids=self.feature_ids[k]
             tree=self.trees[k]
             probas.append(tree.predict_proba(X[:,ids]))
         #we average the probabilities returned by all the trees, 
@@ -181,7 +183,7 @@ class RandomForestClassifierCustom(BaseEstimator):
             return np.zeros(self.n_features_, dtype=np.float64)
         
         for tree_id in range(n_trees):
-            ids = self.feat_ids_by_tree[tree_id]
+            ids = self.feature_ids[tree_id]
             importances = np.zeros(self.n_features)
             importances.fill(np.nan)
             importances[ids] = importances_by_tree[tree_id]
