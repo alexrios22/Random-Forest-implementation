@@ -62,31 +62,31 @@ class RandomForestClassifierCustom(BaseEstimator):
         #we store oob samples for each tree
         self.oob_samples = []
         self.n_features = X.shape[1]
-        if self.max_features=='auto':
+        if self.max_features == 'auto':
             self.max_features = int(np.sqrt(self.n_features))
             
         for k in range(self.n_estimators):
             #random set of features without replacement
-            ids=np.random.choice([k for k in range(self.n_features)],
-                           self.max_features,replace=False) 
+            ids = np.random.choice([k for k in range(self.n_features)],
+                           self.max_features, replace=False) 
             #for this tree, the ids of the features that we randomly select
             self.feature_ids.append(ids) 
             #random sample with replacement to create a bootstrap sample
-            indices=np.random.choice([k for k in range(len(X))],len(X)
-                ,replace=True) 
+            indices = np.random.choice([k for k in range(len(X))], len(X), 
+                                        replace=True) 
             #we create a bootstrap sample of X
-            bootstrap_sample_X=X[indices,:] 
+            bootstrap_sample_X = X[indices, :] 
             #we take the indices accordingly for the target
-            bootstrap_sample_y=y[indices] 
-            oob_idx=np.setdiff1d(range(len(X)),indices)
-            oob_sample_X=X[oob_idx,:]
-            oob_sample_y=y[oob_idx]
-            self.oob_samples.append((oob_sample_X,oob_sample_y))
-            tree=DecisionTreeClassifier(max_depth=self.max_depth,
-                                       max_features=self.max_features,
-                                       random_state=self.random_state)
+            bootstrap_sample_y = y[indices] 
+            oob_idx = np.setdiff1d(range(len(X)), indices)
+            oob_sample_X = X[oob_idx, :]
+            oob_sample_y = y[oob_idx]
+            self.oob_samples.append((oob_sample_X, oob_sample_y))
+            tree = DecisionTreeClassifier(max_depth=self.max_depth,
+                                          max_features=self.max_features,
+                                          random_state=self.random_state)
             #we train a Decision Tree on the bootstrap sample and store it 
-            self.trees.append(tree.fit(bootstrap_sample_X[:,ids],
+            self.trees.append(tree.fit(bootstrap_sample_X[:, ids],
                                       bootstrap_sample_y))
             
         return self #we return the Random Forest
@@ -106,15 +106,15 @@ class RandomForestClassifierCustom(BaseEstimator):
         p : array of shape = (n_samples, n_classes)
             The class probabilities of the input samples
         """
-        probas=[]
+        probas = []
         #for each tree, we predict the probabilities vector
         for k in range(len(self.trees)): 
-            ids=self.feature_ids[k]
-            tree=self.trees[k]
-            probas.append(tree.predict_proba(X[:,ids]))
+            ids = self.feature_ids[k]
+            tree = self.trees[k]
+            probas.append(tree.predict_proba(X[:, ids]))
         #we average the probabilities returned by all the trees, 
         #finally we have a probability vector
-        return np.mean(probas,axis=0) 
+        return np.mean(probas, axis=0) 
     
     
     def predict(self, X):
@@ -138,7 +138,7 @@ class RandomForestClassifierCustom(BaseEstimator):
     def compute_oob_error(self, oob_sample_X, oob_sample_y):
         y_true = oob_sample_y
         y_pred = self.predict(oob_sample_X)
-        return 1-accuracy_score(y_true, y_pred)
+        return 1 - accuracy_score(y_true, y_pred)
         
         
     def mean_decrease_accuracy(self):
@@ -154,9 +154,9 @@ class RandomForestClassifierCustom(BaseEstimator):
             indices_p = list(range(len(oob_sample_X)))
             random.shuffle(indices_p)
             oob_sample_X_p = oob_sample_X.copy() 
-            oob_sample_X_p[:,i] = oob_sample_X[indices_p,   i]
+            oob_sample_X_p[:, i] = oob_sample_X[indices_p, i]
             oob_error_p = self.compute_oob_error(oob_sample_X_p, oob_sample_y)
-            all_importances[i]=oob_error_p - oob_error
+            all_importances[i] = oob_error_p - oob_error
         
         return all_importances/np.sum(all_importances)
             
@@ -173,7 +173,7 @@ class RandomForestClassifierCustom(BaseEstimator):
             array of zeros.
         """
         n_trees = len(self.trees)
-        importances_by_tree = Parallel(n_jobs=self.n_jobs,)(
+        importances_by_tree = Parallel(n_jobs=self.n_jobs)(
             delayed(getattr)(tree, 'feature_importances_')
             for tree in self.trees if tree.tree_.node_count > 1)
         
